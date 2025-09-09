@@ -1,6 +1,9 @@
-import asyncio, websockets, json
+import asyncio
+import websockets
+import json
 from vosk import Model, KaldiRecognizer
 import requests
+import os
 
 # Load Japanese Vosk model
 # Make sure you unzip "vosk-model-small-ja-0.22" into ./model
@@ -33,9 +36,11 @@ async def recognize(websocket):
             await websocket.send(json.dumps({"partial": partial.get("partial", "")}))
 
 async def main():
-    async with websockets.serve(recognize, "0.0.0.0", 10000):
-        print("🚀 Japanese→English Caption Server online at ws://0.0.0.0:10000")
+    port = int(os.environ.get("PORT", 8080))  # Railway sets this automatically
+    async with websockets.serve(recognize, "0.0.0.0", port):
+        print(f"🚀 Japanese→English Caption Server online at ws://0.0.0.0:{port}")
         await asyncio.Future()
 
 if __name__ == "__main__":
     asyncio.run(main())
+
